@@ -166,6 +166,65 @@ function uploadImage(req, res, next) {
     })
 }
 
+function saveMenu(req, res, next) {
+    
+    const query = { 'partnerID': req.params.partnerID };
+    const menu = req.body.menu;
+    const type = req.body.type;
+
+    try {
+        Partner.findOne(query, (err, partner) => {
+            if(err) {
+                throw 'error';
+            }
+    
+            partner.menu = menu;
+
+            if (type === 'draft') {
+                partner.isPending = true;
+            } else if (type === 'publish') {
+                partner.isPending = false;
+            } else {
+                throw 'error';
+            }
+
+            partner.save((err) => {
+                if (err) throw 'error';
+                
+                return res.status(200).json({
+                    status: 200,
+                    message: 'Partner menu updated successfully'
+                });
+            })
+    
+        })
+    } 
+    
+    catch(err) {
+        return res.status(500).json({
+            status: 500,
+            message: 'Error updating Partner menu'
+        })
+    }
+
+}
+
+function getMenu(req, res, next) {
+    const query = { partnerID: req.params.partnerID };
+    Partner.findOne(query, (err, partner) => {
+        if (err) {
+            return res.status(500).json({ status: 500, message: 'No results found' })
+        }
+
+        const menu = partner.menu;
+
+        return res.status(200).json({
+            status: 200,
+            data: menu
+        })
+    })
+}
+
 module.exports = { 
     createPartner, 
     getPartner, 
@@ -174,5 +233,7 @@ module.exports = {
     getAllPartners, 
     getActivePartners, 
     getPendingPartners, 
-    uploadImage 
+    uploadImage,
+    saveMenu,
+    getMenu
 };

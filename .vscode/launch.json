@@ -13,13 +13,13 @@
             "run-script",
             "debug"
         ],
-        "port": 9229
+        "port": 3001
     },
         {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\src\\index.js"
+            "program": "${workspaceFolder}/src/index.js"
         }
     ]
 }
