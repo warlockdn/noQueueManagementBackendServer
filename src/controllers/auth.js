@@ -105,6 +105,10 @@ const authenticate = ((req, res, next) => {
     }
 })
 
+const getStatus = ((req, res, next) => {
+    
+})
+
 const logout = ((req, res, next) => {
     res.json({
         status: 200,

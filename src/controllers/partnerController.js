@@ -9,7 +9,7 @@ const algorithm = 'aes256';
 const key = process.env.PASSWORD_KEY;
 
 function encrypt() {
-    const chars = "abcdefghijklmnopqrstuvwxyz!@#$%^&*()-+<>ABCDEFGHIJKLMNOP1234567890";
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP1234567890";
     let pw = "";
     
     for (var x = 0; x < 8; x++) {
@@ -37,6 +37,7 @@ function createPartner(req, res, next) {
     // Setting initial Values..
     payload.isActive = false;
     payload.isPending = true;
+    payload.password = password.encrypted;
     payload.location.coordinates = []
     payload.location.coordinates.push(parseFloat(payload.location.longitude));
     payload.location.coordinates.push(parseFloat(payload.location.latitude));
@@ -78,6 +79,7 @@ function getPartner(req, res, next) {
 
         // Removing Menu
         partner.menu = [];
+        delete partner.password;
 
         return res.status(200).json({
             status: 200,
@@ -90,7 +92,13 @@ function getPartner(req, res, next) {
 function updatePartner(req, res, next) {
 
     const query = { 'partnerID': req.params.partnerID };
-    const updatedPartner = req.body;
+    let updatedPartner = req.body;
+
+    // Cannot Update these parameters.
+    delete updatedPartner.name;
+    delete updatedPartner.partnerID;
+    delete updatedPartner.phone;
+    if (updatedPartner.password) delete updatedPartner.password;
 
     Partner.findOneAndUpdate(query, updatedPartner, { upsert: false }, (err, result) => {
         if (err) {
@@ -145,7 +153,10 @@ function getAllPartners(req, res, next) {
     })
 }
 
-function getActivePartners() {}
+function getActivePartners(req, res, next) {
+    const password = encrypt();
+    console.log(password);
+}
 
 function getPendingPartners() {}
 

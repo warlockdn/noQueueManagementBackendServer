@@ -28,26 +28,6 @@ app.use(cors());
 // Error Reporting
 app.use(Raven.requestHandler());
 
-/* app.use((err, req, res, next) => {
-    if (req.path == '/auth/login') return next();
-    if (err.code !== 'EBADCSRFTOKEN') return next(err);
-    res
-        .status(403)
-        .json({
-            "error": "session has expired or tampered with"
-        });
-}); */
-
-/* 
-const isAuthenticated = ((req, res, next) => {
-    if (req.path == '/auth/login') return next();
-    if(!req.session.loggedIn) {
-        err = new Error("Not authorized");
-        next(err);
-    }
-    return next();
-}) */
-
 const jwtprovider = require('./providers/token-generator');
 
 const jwtMiddleware = ((req, res, next) => {
