@@ -179,7 +179,7 @@ function uploadImage(req, res, next) {
 
 function saveMenu(req, res, next) {
     
-    const query = { 'partnerID': req.params.partnerID };
+    const query = { 'partnerID': req.params.partnerID || req.body.partnerID };
     const menu = req.body.menu;
     const type = req.body.type;
 
@@ -221,7 +221,7 @@ function saveMenu(req, res, next) {
 }
 
 function getMenu(req, res, next) {
-    const query = { partnerID: req.params.partnerID };
+    const query = { partnerID: req.params.partnerID || req.body.partnerID };
     Partner.findOne(query, (err, partner) => {
         if (err) {
             return res.status(500).json({ status: 500, message: 'No results found' })
