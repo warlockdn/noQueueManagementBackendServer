@@ -8,10 +8,10 @@
         "type": "node",
         "request": "launch",
         "name": "Launch via NPM",
-        "runtimeExecutable": "npm run start",
+        "runtimeExecutable": "npm",
         "runtimeArgs": [
             "run-script",
-            "debug"
+            "start"
         ],
         "port": 3001
     },

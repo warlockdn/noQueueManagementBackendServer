@@ -11,11 +11,13 @@ cloudinary.config({
 
 const uploadImage = (image) => {
 
-    return new Promise((reject, resolve) => {
-        cloudinary.v2.uploader.unsigned_upload_stream('ocvb6goq', function(error, success){
+    return new Promise((resolve, reject) => {
+        cloudinary.v2.uploader.unsigned_upload_stream('spazefood', 
+        { folder: "logo", upload_preset: 'spazefood' }, 
+        function(error, success) {
             if (success) {
-                console.log('Success: ', result)
-                resolve(result)
+                console.log('Success: ', success)
+                resolve(success)
             } else {
                 console.log(error)
                 reject(error)

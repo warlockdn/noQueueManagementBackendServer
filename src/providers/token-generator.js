@@ -41,5 +41,5 @@ const refresh = (token) => {
 }
 
 module.exports = {
-    generator
+    generator, refresh
 };

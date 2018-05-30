@@ -1,9 +1,12 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const Partner = require('../models/partnerModel');
+const Catalog = require('../models/menuCatalogModel');
 const email = require('./../providers/email');
 const sms = require('./../providers/sms');
 const imgcdn = require('../providers/image_assets');
+
+const catalog = require('./catalogController');
 
 const algorithm = 'aes256'; 
 const key = process.env.PASSWORD_KEY;
@@ -49,7 +52,7 @@ function createPartner(req, res, next) {
         console.log('Saved Successfully ', success.partnerID)
 
         // Send Email & SMS Confirmation to the Partner
-        email.sendEmail(success.email, success.partnerID, password.password);
+        email.sendEmail(success.name, success.email, success.partnerID, password.password);
         sms.send(success.phone, success.name, success.partnerID, password.password);
 
         res.status(200).json({
@@ -131,7 +134,8 @@ function getAllPartners(req, res, next) {
                     city: partner.basic.city,
                     state: partner.basic.state,
                     pincode: partner.basic.pincode,
-                    active: partner.isActive
+                    active: partner.isActive,
+                    pending: partner.isPending
                 })
             })
 
@@ -160,19 +164,46 @@ function getActivePartners(req, res, next) {
 
 function getPendingPartners() {}
 
+function updatePartnerStatus(req, res, next) {
+    const query = { 'partnerID': req.body.partnerID };
+    const status = req.body.status;
+    let update = { isActive: true, isPending: false };
+    // Check Status & PartnerID
+    if (typeof status !== "boolean" && typeof req.body.partnerID !== "number") {
+        return res.end(500);
+    }
+
+    if (status === false) {
+        update = {
+            isActive: false,
+            isPending: true
+        }
+    }
+
+    Partner.findOneAndUpdate(query, update, (err, result) => {
+        if (err) {
+            return res.status(500).json({ status: 500, message: 'Error Updating Partner' })
+        }
+        return res.status(200).json({
+            status: 200,
+            message: 'Partner updated successfully'
+        })
+
+    })
+}
+
 function uploadImage(req, res, next) {
 
-    let files = req.files;
+    let file = req.files.file;
 
-    imgcdn.uploadImage(files.image).then((success) => {
-        console.log(success);
+    imgcdn.uploadImage(file).then((success) => {
         res.json({
-            success: success
+            success: success.public_id
         })
     }).catch((err) => {
-        console.log(err);
+        console.log(`Error while uploading image: ${err}`);
         res.json({
-            error: err
+            error: 'Error uploading image. Try again later.'
         })
     })
 }
@@ -192,9 +223,9 @@ function saveMenu(req, res, next) {
             partner.menu = menu;
 
             if (type === 'draft') {
-                partner.isPending = true;
-            } else if (type === 'publish') {
                 partner.isPending = false;
+            } else if (type === 'publish') {
+                partner.isPending = true;
             } else {
                 throw 'error';
             }
@@ -202,6 +233,11 @@ function saveMenu(req, res, next) {
             partner.save((err) => {
                 if (err) throw 'error';
                 
+                if (type === 'publish') {
+                    // Notify admin of menu update for review.
+                    email.sendMenuUpdateNotification(partner.name, partner.partnerID);
+                }
+
                 return res.status(200).json({
                     status: 200,
                     message: 'Partner menu updated successfully'
@@ -218,6 +254,148 @@ function saveMenu(req, res, next) {
         })
     }
 
+}
+
+const getCollections = async(req, res, next) => {
+    
+    const partnerID = parseInt(req.params.partnerID);
+    const query = { partnerID: partnerID };
+    
+    try {
+        let collections = await Partner.findOne(query, 'menu').exec();
+
+        if (!collections) {
+            throw new Error(collections);
+        }
+
+        console.log(`Collections Fetched ${partnerID} - ${collections}`);
+
+        return res.status(200).json({
+            status: 200,
+            message: 'Collections fetched successfully',
+            collections: collections.menu
+        })
+
+    } catch(err) {
+        console.log(`Error fetching collections ${partnerID} - ${err}`);
+        return res.status(500).json({
+            status: 500,
+            message: 'No collections found'
+        });
+    }
+}
+
+const saveCollections = async(req, res, next) => {
+    const partnerID = parseInt(req.params.partnerID);
+    const query = { partnerID: partnerID };
+    const collections = req.body.collections;
+
+    try {
+        let partner = await Partner.findOneAndUpdate(query, { $set: { menu: collections }}).exec();
+
+        if (!partner) {
+            throw new Error(partner);
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Collection updated successfully"
+        });
+        
+    } catch(err) {
+        console.log(`Error updating Collection ${partnerID}`);
+        return res.status(500).json({
+            status: 500,
+            message: "Error updating collection"
+        });
+    }
+}
+
+const saveItem = async(req, res, next) => {
+
+    const partnerID = parseInt(req.params.partnerID);
+
+    try {
+        let catalogItem = await catalog.saveItem(partnerID, req.body.item);
+
+        if (catalogItem) {            
+            
+            return res.status(200).json({
+                status: 200,
+                message: 'Menu Item saved successfully',
+                item: catalogItem
+            })
+
+        }
+    } catch(err) {
+
+        console.log(`Error saving Item ${partnerID} - ${JSON.stringify(err)}`);
+
+        return res.status(500).json({
+            status: 500,
+            message: 'Error saving Menu Item'
+        })
+
+    }
+
+    
+
+}
+
+const getItems = async(req, res, next) => {
+
+    try {
+
+        const partnerID = parseInt(req.params.partnerID);
+        const query = { partnerID: partnerID };
+
+        let items = await Catalog.find(query).exec();
+
+        if (items) {
+            return res.status(200).json({
+                status: 200,
+                message: "Request processed successfully",
+                total: items.length,
+                items: items
+            });
+        }
+    } catch(err) {
+        console.log(`Fetch Error ${partnerID} - ${err}`);
+        return res.status(500).json({
+            status: 500,
+            message: "No records found"
+        })
+    }
+
+}
+
+const deleteItem = async(req, res, next) => {
+    try {
+
+        const query = {
+            partnerID: parseInt(req.params.partnerID),
+            id: parseInt(req.params.id)
+        }
+
+        const status = await Catalog.remove(query);
+
+        if (status.n == 0) {
+            throw new Error (status);
+        } else {
+            return res.status(200).json({
+                status: 200,
+                message: 'Item deleted successfully'
+            });
+        }
+
+    } catch(err) {
+        console.log(`Error deleting item: ${err}`);
+
+        return res.status(500).json({
+            status: 500,
+            message: 'Error deleting Item'
+        })
+    }
 }
 
 function getMenu(req, res, next) {
@@ -244,7 +422,13 @@ module.exports = {
     getAllPartners, 
     getActivePartners, 
     getPendingPartners, 
+    updatePartnerStatus,
     uploadImage,
     saveMenu,
+    getCollections,
+    saveCollections,
+    saveItem,
+    getItems,
+    deleteItem,
     getMenu
 };

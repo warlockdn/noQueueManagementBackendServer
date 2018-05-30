@@ -1,14 +1,14 @@
 const mail = require('@sendgrid/mail');
 
-const sendEmail = (toemail, partnerID, password) => {
+const sendEmail = (name, toemail, partnerID, password) => {
 
     console.log(`Data:- ${toemail}, ${partnerID}, ${password}`);
 
     const msg = {
         to: toemail,
-        cc: 'warlockdn@hotmail.com',
-        from: 'no-reply@example.com',
-        subject: 'Welcome Partner, Let\'s do this.',
+        cc: process.env.BUSINESS_EMAIL,
+        from: process.env.NO_REPlY,
+        subject: `Welcome ${name}, Let\'s do this.`,
         text: `Your PartnerID is ${partnerID}, Password: ${password}`,
         html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Verify your email</title><style></style></head><body style="background: #E3E5E7;"><title></title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">#outlook a {padding: 0;}.ReadMsgBody {width: 100%;}.ExternalClass {width: 100%;}.ExternalClass * {line-height: 100%;}body {margin: 0;padding: 0;-webkit-text-size-adjust: 100%;-ms-text-size-adjust: 100%;}
         table,td {border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
@@ -26,5 +26,27 @@ const sendEmail = (toemail, partnerID, password) => {
     });
 }
 
-module.exports = { sendEmail }
+const sendMenuUpdateNotification = (name, partnerID) => {
+
+    const msg = {
+        to: process.env.BUSINESS_EMAIL,
+        from: process.env.NO_REPlY,
+        subject: `Partner ${name} menu review pending`,
+        text: `Partner ${name} menu pending for review`,
+        html: 
+        `Partner ${partnerID} (${name}) has updated menu and submitted for review. 
+        <br/>`
+    }
+
+    mail.setApiKey(process.env.SENDGRID_KEY);
+
+    mail.send(msg).then((success) => {
+        console.log('Email Successfully Sent');
+    }).catch((err) => {
+        console.error('Email Sending Failed ', err)
+    });
+
+}
+
+module.exports = { sendEmail, sendMenuUpdateNotification }
 

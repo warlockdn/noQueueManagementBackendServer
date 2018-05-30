@@ -4,13 +4,19 @@ const partner = require('./../controllers/partnerController');
 
 // Routes For Admin
 router.route('/')
-    // .all((req, res, next) => {
-    //     checkBoss(req, res, next);
-    // })
     .post(partner.createPartner)
     .get(partner.getAllPartners);
 
 // Routes for Partner
+router.route('/uploadimage')
+    .post(partner.uploadImage);
+
+router.route('/updateStatus')
+    .all((req, res, next) => {
+        checkBoss(req, res, next)
+    })
+    .post(partner.updatePartnerStatus);
+
 router.route('/menu')
     .all((req, res, next) => {
         checkPartner(req, res, next);
@@ -33,9 +39,17 @@ router.route('/:partnerID/menu')
     .get(partner.getMenu)
     .post(partner.saveMenu);
 
-router.route('/uploadimage')
-    .post(partner.uploadImage);
+// router.route('/:partnerID/menuv2')
+router.route('/:partnerID/menuv2/collections')
+    .get(partner.getCollections)
+    .post(partner.getCollections)
 
+router.route('/:partnerID/menuv2/items')
+    .post(partner.saveItem)
+    .get(partner.getItems)
+    
+router.route('/:partnerID/menuv2/items/delete/:id')
+    .delete(partner.deleteItem);
 
 const checkBoss = (req, res, next) => {
     if (req.body.usertype !== 'boss') {

@@ -4,5 +4,7 @@
         "**/node_modules": true,
         "**/bower_components": true
     },
+    "editor.fontSize": 13,
+    "editor.fontFamily": "'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
 
 }

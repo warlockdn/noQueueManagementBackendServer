@@ -1,5 +1,7 @@
-// const successlog = require('./logger');
-// const errorlog = require('./logger');
+require("babel-polyfill");
+
+const successlog = require('./logger');
+const errorlog = require('./logger');
 const express = require('express');
 const unless = require('express-unless');
 const fileUpload = require('express-fileupload');
@@ -29,6 +31,12 @@ app.use(cors());
 app.use(Raven.requestHandler());
 
 const jwtprovider = require('./providers/token-generator');
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 const jwtMiddleware = ((req, res, next) => {
     if (req.path === '/auth/login' || req.path === '/status') return next();
