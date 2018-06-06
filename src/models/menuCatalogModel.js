@@ -25,7 +25,7 @@ const addonGroupSchema = new Schema({
     // add Min, Max later.
 })
 
-const catalogSchema = new Schema({  
+const catalogSchema = new Schema({
     id: { type: Number, unique: true, required: true },
     partnerID: { type: Number, index: true, required: true },
     name: { type: String, required: true },

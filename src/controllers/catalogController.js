@@ -46,15 +46,32 @@ const saveItem = async(partnerID, item) => {
 
         try {
             
-            let result = await Catalog.findOneAndUpdate({
+            let result = await Catalog.replaceOne({
                 id: item.id
-            }, item, { new: true });
+            }, item);
 
             if (!result) {
                 throw new Error(result);
             } else {
-                return result;
+                return item;
             }
+
+            /* let findItem = await Catalog.findOne({
+                id: item.id
+            });
+
+            if (!findItem) {
+                throw new Error(findItem);
+            } else {
+
+                findItem = item;
+                let newItem = findItem.save();
+                
+                if (newItem) {
+                    return newItem;
+                }
+
+            } */
 
         } catch(err) {
             return err;
