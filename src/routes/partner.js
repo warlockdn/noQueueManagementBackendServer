@@ -11,6 +11,9 @@ router.route('/')
 router.route('/uploadimage')
     .post(partner.uploadImage);
 
+router.route('/uploadbgimage')
+    .post(partner.uploadBGImage);
+
 router.route('/updateStatus')
     .all((req, res, next) => {
         checkBoss(req, res, next)

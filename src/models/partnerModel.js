@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const mongoose = require('mongoose').set('debug', true);
+const mongoose = require('mongoose');
 const { autoIncrement } = require('mongoose-plugin-autoinc')
 
 // Initialize Auto Increment 
@@ -41,6 +41,7 @@ const partnerSchema = new mongoose.Schema({
     phone: { type: Number, index: true, unique: true, required: true },
     password: String,
     imageid: String,
+    partnerbg: String,
     phoneAlternate: { type: String },
     basic: {
         address: { type: String, required: true },
@@ -50,6 +51,7 @@ const partnerSchema = new mongoose.Schema({
     },
     menu: [ collectionSchema ],
     location: {
+        type: { type: String, default: "Point"},
         coordinates: {
             type: [Number],
             index: '2d',
@@ -69,6 +71,11 @@ const partnerSchema = new mongoose.Schema({
         weektiming: [String],
         opentime: { type: String, required: true },
         closetime: { type: String, required: true },
+    },
+    taxInfo: {
+        cgst: { type: Number },
+        sgst: { type: Number },
+        servicetax: { type: Number }
     },
     bankDetails: {
         accname: { type: String, required: true },
@@ -126,6 +133,8 @@ partnerSchema.plugin(autoIncrement, {
     startAt: 100300,
     incrementBy: 3
 });
+
+partnerSchema.index({ location: "2dsphere" });
 
 const Partner = connection.model('Partner', partnerSchema);
 

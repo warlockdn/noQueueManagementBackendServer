@@ -97,10 +97,18 @@ function updatePartner(req, res, next) {
     const query = { 'partnerID': req.params.partnerID };
     let updatedPartner = req.body;
 
-    // Cannot Update these parameters.
-    delete updatedPartner.name;
+    // Add point
+    updatedPartner.location = {
+        type: "Point",
+        coordinates: [ parseFloat(updatedPartner.location.longitude), parseFloat(updatedPartner.location.latitude) ]
+    };
+
     delete updatedPartner.partnerID;
-    delete updatedPartner.phone;
+    if (req.body.usertype === "partner") {
+        // Cannot Update these parameters.
+        delete updatedPartner.name;
+        delete updatedPartner.phone;
+    }
     if (updatedPartner.password) delete updatedPartner.password;
 
     Partner.findOneAndUpdate(query, updatedPartner, { upsert: false }, (err, result) => {
@@ -196,7 +204,23 @@ function uploadImage(req, res, next) {
 
     let file = req.files.file;
 
-    imgcdn.uploadImage(file).then((success) => {
+    imgcdn.uploadImage(file, "logo").then((success) => {
+        res.json({
+            success: success.public_id
+        })
+    }).catch((err) => {
+        console.log(`Error while uploading image: ${err}`);
+        res.json({
+            error: 'Error uploading image. Try again later.'
+        })
+    })
+}
+
+function uploadBGImage(req, res, next) {
+
+    let file = req.files.file;
+
+    imgcdn.uploadImage(file, "bg").then((success) => {
         res.json({
             success: success.public_id
         })
@@ -424,6 +448,7 @@ module.exports = {
     getPendingPartners, 
     updatePartnerStatus,
     uploadImage,
+    uploadBGImage,
     saveMenu,
     getCollections,
     saveCollections,
