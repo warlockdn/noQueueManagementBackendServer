@@ -117,12 +117,12 @@ partnerSchema.methods.validatePassword = (password, receivedPassword) => {
     return false;
 }
 
-partnerSchema.pre('update', function (next, done) {
+partnerSchema.pre('update', (next) => {
     this.updatedOn = Date.now();
     next();
 });
 
-partnerSchema.pre('save', function (next, done) {
+partnerSchema.pre('save', (next) => {
     this.createdOn = Date.now();
     next();
 });
