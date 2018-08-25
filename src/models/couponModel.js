@@ -26,11 +26,12 @@ const couponSchema = new Schema({
         totalLimit: { type: Number },
         limitOne: { type: Boolean }
     },
+    usedTimes: { type: Number, default: 0 },
     validity: {
         startDate: { type: Date, default: Date.now },
-        startTime: { type: String },
+        startTime: { type: Date },
         endDate: { type: Date },
-        endTime: { type: String }
+        endTime: { type: Date }
     },
     createdOn: { type: Date, default: Date.now },
     updatedOn: { type: Date, default: Date.now }

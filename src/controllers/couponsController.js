@@ -39,9 +39,9 @@ const getCoupons = async(req, res, next) => {
                 },
                 duration: {
                     startDate: coupon.validity.startDate,
-                    startTime: coupon.validity.startTime,
+                    startTime: `${new Date(coupon.validity.startTime).getHours()}:${new Date(coupon.validity.startTime).getMinutes()}`,
                     endDate: coupon.validity.endDate,
-                    endTime: coupon.validity.endTime
+                    endTime: `${new Date(coupon.validity.endTime).getHours()}:${new Date(coupon.validity.endTime).getMinutes()}`
                 }
             }
 
@@ -99,7 +99,11 @@ const createCoupon = async(req, res, next) => {
             usageLimits: coupon.limits,
             validity: coupon.duration
         };
-    
+
+        // Convert Time to Date, so 12:00 is converted Date, 12, 00;
+        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(coupon.duration.startTime.split(":")[0], coupon.duration.startTime.split(":")[1], 00));
+        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(coupon.duration.endTime.split(":")[0], coupon.duration.endTime.split(":")[1], 00));
+
         if (coupon.discountOptions) {
             payload.discountOptions = {
                 type: coupon.discountOptions.type,
@@ -161,6 +165,10 @@ const updateCoupon = async(req, res, next) => {
             usageLimits: coupon.limits,
             validity: coupon.duration
         };
+
+        // Convert Time to Date, so 12:00 is converted Date, 12, 00;
+        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(coupon.duration.startTime.split(":")[0], coupon.duration.startTime.split(":")[1], 00));
+        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(coupon.duration.endTime.split(":")[0], coupon.duration.endTime.split(":")[1], 00));
     
         if (coupon.discountOptions) {
             updatedCoupon.discountOptions = {
@@ -223,8 +231,8 @@ const deleteCoupon = async(req, res, next) => {
 
         // logger.info("deleteCoupon(): Coupon deleted successfully " + couponID);
 
-        return res.status(204).json({
-            code: 204,
+        return res.status(200).json({
+            code: 200,
             message: "Coupon deleted successfully"
         })
 
