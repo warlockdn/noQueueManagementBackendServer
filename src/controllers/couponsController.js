@@ -101,8 +101,11 @@ const createCoupon = async(req, res, next) => {
         };
 
         // Convert Time to Date, so 12:00 is converted Date, 12, 00;
-        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(coupon.duration.startTime.split(":")[0], coupon.duration.startTime.split(":")[1], 00));
-        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(coupon.duration.endTime.split(":")[0], coupon.duration.endTime.split(":")[1], 00));
+        let startTime = coupon.duration.startTime.split(":");
+        let endTime = coupon.duration.endTime.split(":");
+        
+        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(parseInt(startTime[0]), parseInt(startTime[1])));
+        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(parseInt(endTime[0]), parseInt(endTime[1])));
 
         if (coupon.discountOptions) {
             payload.discountOptions = {
@@ -167,8 +170,8 @@ const updateCoupon = async(req, res, next) => {
         };
 
         // Convert Time to Date, so 12:00 is converted Date, 12, 00;
-        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(coupon.duration.startTime.split(":")[0], coupon.duration.startTime.split(":")[1], 00));
-        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(coupon.duration.endTime.split(":")[0], coupon.duration.endTime.split(":")[1], 00));
+        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(`${coupon.duration.startTime.split(":")[0]}, ${coupon.duration.startTime.split(":")[1]}, 00`));
+        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(`${coupon.duration.endTime.split(":")[0]}, ${coupon.duration.endTime.split(":")[1]}, 00`));
     
         if (coupon.discountOptions) {
             updatedCoupon.discountOptions = {
