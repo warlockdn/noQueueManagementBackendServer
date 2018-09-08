@@ -46,6 +46,18 @@ function createPartner(req, res, next) {
     payload.location.coordinates.push(parseFloat(payload.location.latitude));
     payload.bankDetails.name = payload.bankDetails.accname;
 
+    if (payload.characteristics) {
+        if (payload.characteristics.type === "Quick Service") {
+            payload.characteristics.typeid = "1"
+        } else if (payload.characteristics.type === "Restaurant") {
+            payload.characteristics.typeid = "2"
+        } else if (payload.characteristics.type === "Hotel") {
+            payload.characteristics.typeid = "3"
+        } else {
+            payload.characteristics.typeid = "1"
+        }
+    }
+
     const partner = new Partner(payload);
 
     partner.save().then((success) => {
@@ -110,6 +122,18 @@ function updatePartner(req, res, next) {
         delete updatedPartner.phone;
     }
     if (updatedPartner.password) delete updatedPartner.password;
+
+    if (updatedPartner.characteristics) {
+        if (updatedPartner.characteristics.type === "Quick Service") {
+            updatedPartner.characteristics.typeid = "1"
+        } else if (updatedPartner.characteristics.type === "Restaurant") {
+            updatedPartner.characteristics.typeid = "2"
+        } else if (updatedPartner.characteristics.type === "Hotel") {
+            updatedPartner.characteristics.typeid = "3"
+        } else {
+            updatedPartner.characteristics.typeid = "1"
+        }
+    }
 
     Partner.findOneAndUpdate(query, updatedPartner, { upsert: false }, (err, result) => {
         if (err) {

@@ -60,10 +60,11 @@ const partnerSchema = new mongoose.Schema({
         elevation: Number
     },
     characteristics: {
-        "type": { type: String, required: true },
+        type: { type: String, required: true },
         typeid: { 
             /*  1 - QSR, 2 - Restaurant, 3 - Hotels  */
-            type: String
+            type: String,
+            default: "1"
         },
         services: [String],
         seating: { type: Boolean, default: false },
