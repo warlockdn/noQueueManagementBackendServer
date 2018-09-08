@@ -87,6 +87,7 @@ const partnerSchema = new mongoose.Schema({
     },
     createdOn: { type: Date, default: Date.now },
     updatedOn: { type: Date, default: Date.now },
+    isOpen: { type: Boolean, default: false },
     isActive: {
         type: Boolean,
         default: false
