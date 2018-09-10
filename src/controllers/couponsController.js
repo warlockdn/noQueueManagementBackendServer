@@ -92,7 +92,7 @@ const createCoupon = async(req, res, next) => {
         // logger.info("createCoupons(): Creating Coupon " + coupon);
     
         let payload = {
-            discountCode: coupon.discountCode,
+            discountCode: (coupon.discountCode).toUpperCase(),
             description: coupon.description,
             comments: coupon.comments,
             discountOptions: coupon.discountOptions,
@@ -161,7 +161,7 @@ const updateCoupon = async(req, res, next) => {
         // logger.info("createCoupons(): Creating Coupon " + coupon);
     
         let updatedCoupon = {
-            discountCode: coupon.discountCode,
+            discountCode: (coupon.discountCode).toUpperCase(),
             description: coupon.description,
             comments: coupon.comments,
             discountOptions: coupon.discountOptions,
