@@ -170,8 +170,13 @@ const updateCoupon = async(req, res, next) => {
         };
 
         // Convert Time to Date, so 12:00 is converted Date, 12, 00;
-        payload.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(`${coupon.duration.startTime.split(":")[0]}, ${coupon.duration.startTime.split(":")[1]}, 00`));
-        payload.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(`${coupon.duration.endTime.split(":")[0]}, ${coupon.duration.endTime.split(":")[1]}, 00`));
+
+        // Convert Time to Date, so 12:00 is converted Date, 12, 00;
+        let startTime = coupon.duration.startTime.split(":");
+        let endTime = coupon.duration.endTime.split(":");
+        
+        updatedCoupon.validity.startTime = new Date(new Date(coupon.duration.startDate).setHours(parseInt(startTime[0]), parseInt(startTime[1])));
+        updatedCoupon.validity.endTime = new Date(new Date(coupon.duration.endDate).setHours(parseInt(endTime[0]), parseInt(endTime[1])));
     
         if (coupon.discountOptions) {
             updatedCoupon.discountOptions = {
@@ -207,7 +212,7 @@ const updateCoupon = async(req, res, next) => {
 
     } catch(err) {
 
-        // logger.info("createCoupons(): Error creating coupon " + err);
+        logger.info("createCoupons(): Error creating coupon " + err.stack);
 
         return res.status(500).json({
             code: 500,
